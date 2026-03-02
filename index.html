@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>L LAB Performance Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<style>
+body { font-family: Arial; background:#f3f4f6; padding:14px; }
+.card { background:white; padding:18px; border-radius:14px; margin-bottom:14px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+input, select { padding:10px; margin:6px 0 12px; width:100%; border-radius:8px; border:1px solid #ccc; }
+h1 { font-size:20px; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.btn { padding:12px; background:#111827; color:white; border:none; border-radius:10px; font-weight:bold; width:100%; }
+.pill { padding:4px 10px; border-radius:20px; font-weight:bold; display:inline-block; }
+.good { background:#e6f9ec; color:#0f7a36; }
+.warn { background:#fff4d6; color:#8a5b00; }
+.bad { background:#ffe5e5; color:#9b1c1c; }
+.muted { color:#666; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1>L LAB Performance Tracker</h1>
+<div class="muted">8-10週衝30%版｜喝水目標｜手動恢復日</div>
+</div>
+
+<div class="card">
+<h2>目標設定</h2>
+<label>蛋白目標 (g)</label>
+<input type="number" id="goalProtein" value="105">
+
+<label>喝水目標 (ml)</label>
+<input type="number" id="goalWater" value="2500">
+
+<button class="btn" onclick="saveGoals()">儲存目標</button>
+<div id="goalSaved" class="muted"></div>
+</div>
+
+<div class="card">
+<h2>每日紀錄</h2>
+
+<label>班別</label>
+<select id="shift">
+<option>早班</option>
+<option>晚班</option>
+<option>大夜</option>
+<option>休假</option>
+</select>
+
+<label>運動種類</label>
+<select id="workout">
+<option>重訓</option>
+<option>Zone2</option>
+<option>HYROX</option>
+<option>休息</option>
+</select>
+
+<label><input type="checkbox" id="isRecovery"> 今天是恢復日</label>
+
+<div class="row">
+<input type="number" id="water" placeholder="喝水 ml">
+<input type="number" id="steps" placeholder="步數">
+</div>
+
+<div class="row">
+<input type="number" id="protein" placeholder="總蛋白 g">
+<input type="number" id="carb" placeholder="總碳水 g">
+</div>
+
+<input type="number" id="kcal" placeholder="總熱量 kcal">
+
+<button class="btn" onclick="calculate()">計算今日狀況</button>
+<div id="output"></div>
+
+</div>
+
+<script>
+function saveGoals(){
+localStorage.setItem("llab_goals_v4", JSON.stringify({
+protein: goalProtein.value,
+water: goalWater.value
+}));
+goalSaved.innerText="已儲存 ✅";
+}
+
+function getGoals(){
+return JSON.parse(localStorage.getItem("llab_goals_v4")) || {protein:105, water:2500};
+}
+
+function calorieRange(workout,isRecovery){
+if(isRecovery) return [1700,1800];
+if(workout=="重訓") return [1700,1700];
+if(workout=="HYROX") return [1750,1750];
+if(workout=="Zone2") return [1500,1500];
+return [1400,1400];
+}
+
+function calculate(){
+let g=getGoals();
+let workout=document.getElementById("workout").value;
+let shift=document.getElementById("shift").value;
+let isRecovery=document.getElementById("isRecovery").checked;
+
+let protein=Number(document.getElementById("protein").value);
+let carb=Number(document.getElementById("carb").value);
+let kcal=Number(document.getElementById("kcal").value);
+let water=Number(document.getElementById("water").value);
+
+let [minK,maxK]=calorieRange(workout,isRecovery);
+
+let score=0;
+
+if(protein>=g.protein) score+=30;
+if(water>=g.water) score+=20;
+if(kcal>=minK && kcal<=maxK) score+=30;
+
+if(shift=="大夜"){
+if(carb<=110) score+=20;
+}else{
+score+=20;
+}
+
+let label="⚠ 需要調整";
+let cls="bad";
+if(score>=85){label="🔥 非常理想";cls="good";}
+else if(score>=70){label="👍 合格";cls="warn";}
+
+document.getElementById("output").innerHTML=`
+<div>今日分數 <span class="pill ${cls}">${score}/100</span></div>
+<div>熱量目標 ${minK} kcal</div>
+`;
+}
+</script>
+
+</body>
+</html>
