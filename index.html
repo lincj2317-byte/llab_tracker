@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>L LAB Tracker</title>
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#16a34a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <style>
 body{font-family:Arial;background:#f3f4f6;padding:14px}
 .card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
@@ -29,13 +33,12 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
 <div class="card">
   <h1>L LAB Tracker</h1>
-  <div class="small">v7｜更像App｜含日期｜可收合</div>
+  <div class="small">v8｜GitHub Pages 修正版｜日期｜可收合｜可安裝</div>
 </div>
 
 <div class="card">
   <div class="toggle" onclick="toggle('daily')">▼ 每日紀錄</div>
   <div id="daily">
-
     日期
     <input id="logDate" type="date">
 
@@ -92,14 +95,12 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
     <button class="btn2" onclick="calculate()">計算並儲存</button>
     <div id="result" style="margin-top:10px"></div>
-
   </div>
 </div>
 
 <div class="card">
   <div class="toggle" onclick="toggle('settings')">▶ 目標設定（可調整）</div>
   <div id="settings" class="hidden">
-
     <div class="row">
       <div>蛋白目標(g)<input id="goalProtein" value="105"></div>
       <div>步數目標<input id="goalSteps" value="8000"></div>
@@ -122,7 +123,6 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 
     <button class="btn" onclick="saveGoals()">儲存目標</button>
     <div id="saved" class="small"></div>
-
   </div>
 </div>
 
@@ -144,30 +144,23 @@ hr{border:none;border-top:1px solid #eee;margin:12px 0}
 </div>
 
 <script>
-function toggle(id){
-  document.getElementById(id).classList.toggle("hidden");
-}
-
+function toggle(id){ document.getElementById(id).classList.toggle("hidden"); }
 function todayISO(){
-  const d=new Date();
-  const tzOff=d.getTimezoneOffset()*60000;
+  const d=new Date(); const tzOff=d.getTimezoneOffset()*60000;
   return new Date(d - tzOff).toISOString().slice(0,10);
 }
-
 function loadGoalsIntoForm(g){
   goalProtein.value=g.protein; goalWater.value=g.water; goalSteps.value=g.steps;
   kStrength.value=g.kStrength; kHyrox.value=g.kHyrox; kZone2.value=g.kZone2; kRest.value=g.kRest;
   kRecMin.value=g.kRecMin; kRecMax.value=g.kRecMax;
 }
-
 function getGoals(){
-  return JSON.parse(localStorage.getItem("goals_v7")) || {
+  return JSON.parse(localStorage.getItem("goals_v8")) || {
     protein:105, water:2500, steps:8000,
     kStrength:1700, kHyrox:1750, kZone2:1500, kRest:1400,
     kRecMin:1700, kRecMax:1800
   };
 }
-
 function saveGoals(){
   const goals={
     protein:Number(goalProtein.value||105),
@@ -180,10 +173,9 @@ function saveGoals(){
     kRecMin:Number(kRecMin.value||1700),
     kRecMax:Number(kRecMax.value||1800)
   };
-  localStorage.setItem("goals_v7",JSON.stringify(goals));
+  localStorage.setItem("goals_v8",JSON.stringify(goals));
   saved.innerText="已儲存 ✅";
 }
-
 function calorieTarget(workout,recovery,g){
   if(recovery) return [g.kRecMin,g.kRecMax];
   if(workout==="重訓") return [g.kStrength,g.kStrength];
@@ -191,24 +183,15 @@ function calorieTarget(workout,recovery,g){
   if(workout==="Zone2") return [g.kZone2,g.kZone2];
   return [g.kRest,g.kRest];
 }
-
-function getDailyMap(){
-  return JSON.parse(localStorage.getItem("daily_v7")) || {};
-}
-function setDailyMap(m){
-  localStorage.setItem("daily_v7", JSON.stringify(m));
-}
-
+function getDailyMap(){ return JSON.parse(localStorage.getItem("daily_v8")) || {}; }
+function setDailyMap(m){ localStorage.setItem("daily_v8", JSON.stringify(m)); }
 function calculate(){
-  const g=getGoals();
-  const d=logDate.value || todayISO();
-
+  const g=getGoals(); const d=logDate.value || todayISO();
   const protein=Number(p1.value||0)+Number(p2.value||0)+Number(p3.value||0);
   const carb=Number(c1.value||0)+Number(c2.value||0)+Number(c3.value||0);
   const kcal=Number(k1.value||0)+Number(k2.value||0)+Number(k3.value||0);
   const waterVal=Number(water.value||0);
   const stepsVal=Number(steps.value||0);
-
   const [minK,maxK]=calorieTarget(workout.value, recovery.checked, g);
 
   let score=0;
@@ -229,17 +212,11 @@ function calculate(){
     <div>總熱量：${kcal} kcal（目標 ${minK}${minK===maxK?"":"–"+maxK}）</div>
     <div class="${cls}">今日分數：${score}/100 - ${label}</div>
   `;
-
-  // Save by date (overwrite if same date)
-  const m=getDailyMap();
-  m[d]={date:d, score, protein, carb};
-  setDailyMap(m);
+  const m=getDailyMap(); m[d]={date:d, score, protein, carb}; setDailyMap(m);
   updateSummary();
 }
-
 function updateSummary(){
-  const m=getDailyMap();
-  const keys=Object.keys(m).sort(); // ISO dates
+  const m=getDailyMap(); const keys=Object.keys(m).sort();
   const last7=keys.slice(-7).map(k=>m[k]);
   if(last7.length===0){ summary.innerHTML="尚無資料"; return; }
   const avgScore=(last7.reduce((a,b)=>a+b.score,0)/last7.length).toFixed(0);
@@ -247,26 +224,27 @@ function updateSummary(){
   const avgCarb=(last7.reduce((a,b)=>a+b.carb,0)/last7.length).toFixed(0);
   summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g ｜ 平均碳水 ${avgCarb}g （${last7.length}天）`;
 }
-
 function saveWeekly(){
-  let data=JSON.parse(localStorage.getItem("weekly_v7"))||[];
+  let data=JSON.parse(localStorage.getItem("weekly_v8"))||[];
   data.push({date:todayISO(),weight:weight.value,bodyfat:bodyfat.value});
-  localStorage.setItem("weekly_v7",JSON.stringify(data));
+  localStorage.setItem("weekly_v8",JSON.stringify(data));
   weeklyInfo.innerText="已儲存本週紀錄 ✅";
 }
 
-// init
 logDate.value=todayISO();
 loadGoalsIntoForm(getGoals());
 updateSummary();
 
-// Register SW
+// GitHub Pages-safe SW register for /llab_tracker/
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  window.addEventListener('load', async () => {
+    try{
+      const basePath = window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/');
+      const swUrl = new URL('sw.js', window.location.origin + basePath).toString();
+      await navigator.serviceWorker.register(swUrl, { scope: basePath });
+    }catch(e){}
   });
 }
 </script>
-
 </body>
 </html>
