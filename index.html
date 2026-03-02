@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>L LAB Performance Tracker v6</title>
+<title>L LAB Tracker</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
 <style>
 body{font-family:Arial;background:#f3f4f6;padding:14px}
 .card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
@@ -23,7 +25,7 @@ input,select{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px so
 <body>
 
 <div class="card">
-<h1>L LAB Performance Tracker</h1>
+<h1>L LAB Tracker</h1>
 <div class="small">v6 單頁整合版｜可收合設計</div>
 </div>
 
@@ -144,18 +146,18 @@ el.classList.toggle("hidden");
 
 function saveGoals(){
 let goals={
-protein:goalProtein.value,
-water:goalWater.value,
-steps:goalSteps.value,
-kStrength:kStrength.value,
-kHyrox:kHyrox.value,
-kZone2:kZone2.value,
-kRest:kRest.value,
-kRecMin:kRecMin.value,
-kRecMax:kRecMax.value
+protein:Number(goalProtein.value||105),
+water:Number(goalWater.value||2500),
+steps:Number(goalSteps.value||8000),
+kStrength:Number(kStrength.value||1700),
+kHyrox:Number(kHyrox.value||1750),
+kZone2:Number(kZone2.value||1500),
+kRest:Number(kRest.value||1400),
+kRecMin:Number(kRecMin.value||1700),
+kRecMax:Number(kRecMax.value||1800)
 };
 localStorage.setItem("goals_v6",JSON.stringify(goals));
-saved.innerText="已儲存";
+saved.innerText="已儲存 ✅";
 }
 
 function getGoals(){
@@ -198,7 +200,8 @@ else if(score>=70){label="👍 合格";cls="warn";}
 
 result.innerHTML=`
 <div>總蛋白 ${protein} g</div>
-<div>總熱量 ${kcal} kcal</div>
+<div>總碳水 ${carb} g</div>
+<div>總熱量 ${kcal} kcal（目標 ${minK}${minK===maxK?"":"–"+maxK}）</div>
 <div class="${cls}">今日分數 ${score}/100 - ${label}</div>
 `;
 
@@ -208,27 +211,35 @@ updateSummary();
 
 function saveDaily(score,protein,carb){
 let data=JSON.parse(localStorage.getItem("daily_v6"))||[];
-data.push({score,protein,carb});
+data.push({date:new Date().toLocaleDateString(),score,protein,carb});
 if(data.length>7)data.shift();
 localStorage.setItem("daily_v6",JSON.stringify(data));
 }
 
 function updateSummary(){
 let data=JSON.parse(localStorage.getItem("daily_v6"))||[];
-if(data.length==0)return;
+if(data.length==0){ summary.innerHTML="尚無資料"; return; }
 let avgScore=(data.reduce((a,b)=>a+b.score,0)/data.length).toFixed(0);
 let avgProtein=(data.reduce((a,b)=>a+b.protein,0)/data.length).toFixed(0);
-summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g`;
+let avgCarb=(data.reduce((a,b)=>a+b.carb,0)/data.length).toFixed(0);
+summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g ｜ 平均碳水 ${avgCarb}g`;
 }
 
 function saveWeekly(){
 let data=JSON.parse(localStorage.getItem("weekly_v6"))||[];
 data.push({date:new Date().toLocaleDateString(),weight:weight.value,bodyfat:bodyfat.value});
 localStorage.setItem("weekly_v6",JSON.stringify(data));
-weeklyInfo.innerText="已儲存本週紀錄";
+weeklyInfo.innerText="已儲存本週紀錄 ✅";
 }
 
 updateSummary();
+
+// Register SW for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
 </script>
 
 </body>
