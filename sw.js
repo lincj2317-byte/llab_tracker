@@ -1,4 +1,4 @@
-const CACHE_NAME = "llab-tracker-v6";
+const CACHE_NAME = "llab-tracker-v7";
 const ASSETS = ["./","./index.html","./manifest.json","./sw.js","./icons/icon-192.png","./icons/icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then((c)=>c.addAll(ASSETS)));

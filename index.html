@@ -5,236 +5,262 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>L LAB Tracker</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#16a34a">
 <style>
 body{font-family:Arial;background:#f3f4f6;padding:14px}
 .card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
-h1{font-size:20px}
+h1{font-size:20px;margin:0}
 h2{font-size:16px;margin-bottom:8px}
-input,select{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid #ccc}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{background:#111827;color:#fff;padding:10px;border:none;border-radius:10px;width:100%;font-weight:bold}
+h3{font-size:14px;margin:10px 0 0}
+input,select{width:100%;padding:10px;margin:6px 0;border-radius:10px;border:1px solid #d1d5db}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{background:#111827;color:#fff;padding:12px;border:none;border-radius:12px;width:100%;font-weight:bold}
+.btn2{background:#16a34a;color:#fff;padding:12px;border:none;border-radius:12px;width:100%;font-weight:bold}
 .toggle{cursor:pointer;font-weight:bold;margin-bottom:6px}
 .hidden{display:none}
-.good{color:green;font-weight:bold}
+.good{color:#16a34a;font-weight:bold}
 .warn{color:#c58b00;font-weight:bold}
-.bad{color:red;font-weight:bold}
-.small{font-size:13px;color:#666}
+.bad{color:#dc2626;font-weight:bold}
+.small{font-size:13px;color:#6b7280}
+hr{border:none;border-top:1px solid #eee;margin:12px 0}
 </style>
 </head>
 <body>
 
 <div class="card">
-<h1>L LAB Tracker</h1>
-<div class="small">v6 單頁整合版｜可收合設計</div>
+  <h1>L LAB Tracker</h1>
+  <div class="small">v7｜更像App｜含日期｜可收合</div>
 </div>
 
 <div class="card">
-<div class="toggle" onclick="toggle('daily')">▼ 每日紀錄</div>
-<div id="daily">
+  <div class="toggle" onclick="toggle('daily')">▼ 每日紀錄</div>
+  <div id="daily">
 
-班別
-<select id="shift">
-<option>早班</option>
-<option>晚班</option>
-<option>大夜</option>
-<option>休假</option>
-</select>
+    日期
+    <input id="logDate" type="date">
 
-運動種類
-<select id="workout">
-<option>重訓</option>
-<option>Zone2</option>
-<option>HYROX</option>
-<option>休息</option>
-</select>
+    <div class="row">
+      <div>
+        班別
+        <select id="shift">
+          <option>早班</option>
+          <option>晚班</option>
+          <option>大夜</option>
+          <option>休假</option>
+        </select>
+      </div>
+      <div>
+        運動種類
+        <select id="workout">
+          <option>重訓</option>
+          <option>Zone2</option>
+          <option>HYROX</option>
+          <option>休息</option>
+        </select>
+      </div>
+    </div>
 
-<label><input type="checkbox" id="recovery"> 今天是恢復日</label>
+    <label><input type="checkbox" id="recovery"> 今天是恢復日</label>
 
-<div class="row">
-<input id="water" placeholder="喝水 ml">
-<input id="steps" placeholder="步數">
-</div>
+    <div class="row">
+      <input id="water" placeholder="喝水 ml">
+      <input id="steps" placeholder="步數">
+    </div>
 
-<h3>餐1</h3>
-<div class="row">
-<input id="p1" placeholder="蛋白 g">
-<input id="c1" placeholder="碳水 g">
-</div>
-<input id="k1" placeholder="熱量 kcal">
+    <hr>
 
-<h3>餐2</h3>
-<div class="row">
-<input id="p2" placeholder="蛋白 g">
-<input id="c2" placeholder="碳水 g">
-</div>
-<input id="k2" placeholder="熱量 kcal">
+    <h3>餐1</h3>
+    <div class="row">
+      <input id="p1" placeholder="蛋白 g">
+      <input id="c1" placeholder="碳水 g">
+    </div>
+    <input id="k1" placeholder="熱量 kcal">
 
-<h3>餐3</h3>
-<div class="row">
-<input id="p3" placeholder="蛋白 g">
-<input id="c3" placeholder="碳水 g">
-</div>
-<input id="k3" placeholder="熱量 kcal">
+    <h3>餐2</h3>
+    <div class="row">
+      <input id="p2" placeholder="蛋白 g">
+      <input id="c2" placeholder="碳水 g">
+    </div>
+    <input id="k2" placeholder="熱量 kcal">
 
-<button class="btn" onclick="calculate()">計算今日分數</button>
-<div id="result"></div>
-</div>
-</div>
+    <h3>餐3</h3>
+    <div class="row">
+      <input id="p3" placeholder="蛋白 g">
+      <input id="c3" placeholder="碳水 g">
+    </div>
+    <input id="k3" placeholder="熱量 kcal">
 
-<div class="card">
-<div class="toggle" onclick="toggle('settings')">▶ 目標設定</div>
-<div id="settings" class="hidden">
+    <button class="btn2" onclick="calculate()">計算並儲存</button>
+    <div id="result" style="margin-top:10px"></div>
 
-蛋白目標(g)
-<input id="goalProtein" value="105">
-
-喝水目標(ml)
-<input id="goalWater" value="2500">
-
-步數目標
-<input id="goalSteps" value="8000">
-
-重訓熱量
-<input id="kStrength" value="1700">
-
-HYROX熱量
-<input id="kHyrox" value="1750">
-
-Zone2熱量
-<input id="kZone2" value="1500">
-
-休息熱量
-<input id="kRest" value="1400">
-
-恢復日熱量下限
-<input id="kRecMin" value="1700">
-
-恢復日熱量上限
-<input id="kRecMax" value="1800">
-
-<button class="btn" onclick="saveGoals()">儲存目標</button>
-<div id="saved" class="small"></div>
-
-</div>
+  </div>
 </div>
 
 <div class="card">
-<div class="toggle" onclick="toggle('weekly')">▶ 每週體重體脂</div>
-<div id="weekly" class="hidden">
+  <div class="toggle" onclick="toggle('settings')">▶ 目標設定（可調整）</div>
+  <div id="settings" class="hidden">
 
-<div class="row">
-<input id="weight" placeholder="體重 kg">
-<input id="bodyfat" placeholder="體脂 %">
-</div>
-<button class="btn" onclick="saveWeekly()">儲存本週</button>
-<div id="weeklyInfo" class="small"></div>
+    <div class="row">
+      <div>蛋白目標(g)<input id="goalProtein" value="105"></div>
+      <div>步數目標<input id="goalSteps" value="8000"></div>
+    </div>
+    喝水目標(ml)
+    <input id="goalWater" value="2500">
 
-</div>
+    <div class="row">
+      <div>重訓熱量<input id="kStrength" value="1700"></div>
+      <div>HYROX熱量<input id="kHyrox" value="1750"></div>
+    </div>
+    <div class="row">
+      <div>Zone2熱量<input id="kZone2" value="1500"></div>
+      <div>休息熱量<input id="kRest" value="1400"></div>
+    </div>
+    <div class="row">
+      <div>恢復日下限<input id="kRecMin" value="1700"></div>
+      <div>恢復日上限<input id="kRecMax" value="1800"></div>
+    </div>
+
+    <button class="btn" onclick="saveGoals()">儲存目標</button>
+    <div id="saved" class="small"></div>
+
+  </div>
 </div>
 
 <div class="card">
-<h2>近7天概覽</h2>
-<div id="summary" class="small"></div>
+  <div class="toggle" onclick="toggle('weekly')">▶ 每週體重體脂（每週一次）</div>
+  <div id="weekly" class="hidden">
+    <div class="row">
+      <input id="weight" placeholder="體重 kg">
+      <input id="bodyfat" placeholder="體脂 %">
+    </div>
+    <button class="btn" onclick="saveWeekly()">儲存本週</button>
+    <div id="weeklyInfo" class="small"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>近7天概覽</h2>
+  <div id="summary" class="small">尚無資料</div>
 </div>
 
 <script>
 function toggle(id){
-let el=document.getElementById(id);
-el.classList.toggle("hidden");
+  document.getElementById(id).classList.toggle("hidden");
 }
 
-function saveGoals(){
-let goals={
-protein:Number(goalProtein.value||105),
-water:Number(goalWater.value||2500),
-steps:Number(goalSteps.value||8000),
-kStrength:Number(kStrength.value||1700),
-kHyrox:Number(kHyrox.value||1750),
-kZone2:Number(kZone2.value||1500),
-kRest:Number(kRest.value||1400),
-kRecMin:Number(kRecMin.value||1700),
-kRecMax:Number(kRecMax.value||1800)
-};
-localStorage.setItem("goals_v6",JSON.stringify(goals));
-saved.innerText="已儲存 ✅";
+function todayISO(){
+  const d=new Date();
+  const tzOff=d.getTimezoneOffset()*60000;
+  return new Date(d - tzOff).toISOString().slice(0,10);
+}
+
+function loadGoalsIntoForm(g){
+  goalProtein.value=g.protein; goalWater.value=g.water; goalSteps.value=g.steps;
+  kStrength.value=g.kStrength; kHyrox.value=g.kHyrox; kZone2.value=g.kZone2; kRest.value=g.kRest;
+  kRecMin.value=g.kRecMin; kRecMax.value=g.kRecMax;
 }
 
 function getGoals(){
-return JSON.parse(localStorage.getItem("goals_v6"))||{
-protein:105,water:2500,steps:8000,
-kStrength:1700,kHyrox:1750,kZone2:1500,kRest:1400,
-kRecMin:1700,kRecMax:1800
-};
+  return JSON.parse(localStorage.getItem("goals_v7")) || {
+    protein:105, water:2500, steps:8000,
+    kStrength:1700, kHyrox:1750, kZone2:1500, kRest:1400,
+    kRecMin:1700, kRecMax:1800
+  };
+}
+
+function saveGoals(){
+  const goals={
+    protein:Number(goalProtein.value||105),
+    water:Number(goalWater.value||2500),
+    steps:Number(goalSteps.value||8000),
+    kStrength:Number(kStrength.value||1700),
+    kHyrox:Number(kHyrox.value||1750),
+    kZone2:Number(kZone2.value||1500),
+    kRest:Number(kRest.value||1400),
+    kRecMin:Number(kRecMin.value||1700),
+    kRecMax:Number(kRecMax.value||1800)
+  };
+  localStorage.setItem("goals_v7",JSON.stringify(goals));
+  saved.innerText="已儲存 ✅";
 }
 
 function calorieTarget(workout,recovery,g){
-if(recovery)return [Number(g.kRecMin),Number(g.kRecMax)];
-if(workout=="重訓")return [Number(g.kStrength),Number(g.kStrength)];
-if(workout=="HYROX")return [Number(g.kHyrox),Number(g.kHyrox)];
-if(workout=="Zone2")return [Number(g.kZone2),Number(g.kZone2)];
-return [Number(g.kRest),Number(g.kRest)];
+  if(recovery) return [g.kRecMin,g.kRecMax];
+  if(workout==="重訓") return [g.kStrength,g.kStrength];
+  if(workout==="HYROX") return [g.kHyrox,g.kHyrox];
+  if(workout==="Zone2") return [g.kZone2,g.kZone2];
+  return [g.kRest,g.kRest];
+}
+
+function getDailyMap(){
+  return JSON.parse(localStorage.getItem("daily_v7")) || {};
+}
+function setDailyMap(m){
+  localStorage.setItem("daily_v7", JSON.stringify(m));
 }
 
 function calculate(){
-let g=getGoals();
+  const g=getGoals();
+  const d=logDate.value || todayISO();
 
-let protein=Number(p1.value||0)+Number(p2.value||0)+Number(p3.value||0);
-let carb=Number(c1.value||0)+Number(c2.value||0)+Number(c3.value||0);
-let kcal=Number(k1.value||0)+Number(k2.value||0)+Number(k3.value||0);
-let waterVal=Number(water.value||0);
-let stepsVal=Number(steps.value||0);
+  const protein=Number(p1.value||0)+Number(p2.value||0)+Number(p3.value||0);
+  const carb=Number(c1.value||0)+Number(c2.value||0)+Number(c3.value||0);
+  const kcal=Number(k1.value||0)+Number(k2.value||0)+Number(k3.value||0);
+  const waterVal=Number(water.value||0);
+  const stepsVal=Number(steps.value||0);
 
-let [minK,maxK]=calorieTarget(workout.value,recovery.checked,g);
+  const [minK,maxK]=calorieTarget(workout.value, recovery.checked, g);
 
-let score=0;
-if(protein>=g.protein)score+=25;
-if(waterVal>=g.water)score+=15;
-if(kcal>=minK&&kcal<=maxK)score+=30;
-if(stepsVal>=g.steps)score+=15;
-if(shift.value=="大夜"){ if(carb<=110)score+=15; } else score+=15;
+  let score=0;
+  if(protein>=g.protein) score+=25;
+  if(waterVal>=g.water) score+=15;
+  if(kcal>=minK && kcal<=maxK) score+=30;
+  if(stepsVal>=g.steps) score+=15;
+  if(shift.value==="大夜"){ if(carb<=110) score+=15; } else score+=15;
 
-let label="需調整",cls="bad";
-if(score>=85){label="🔥 非常理想";cls="good";}
-else if(score>=70){label="👍 合格";cls="warn";}
+  let label="需調整",cls="bad";
+  if(score>=85){label="🔥 非常理想";cls="good";}
+  else if(score>=70){label="👍 合格";cls="warn";}
 
-result.innerHTML=`
-<div>總蛋白 ${protein} g</div>
-<div>總碳水 ${carb} g</div>
-<div>總熱量 ${kcal} kcal（目標 ${minK}${minK===maxK?"":"–"+maxK}）</div>
-<div class="${cls}">今日分數 ${score}/100 - ${label}</div>
-`;
+  result.innerHTML=`
+    <div>日期：${d}</div>
+    <div>總蛋白：${protein} g</div>
+    <div>總碳水：${carb} g</div>
+    <div>總熱量：${kcal} kcal（目標 ${minK}${minK===maxK?"":"–"+maxK}）</div>
+    <div class="${cls}">今日分數：${score}/100 - ${label}</div>
+  `;
 
-saveDaily(score,protein,carb);
-updateSummary();
-}
-
-function saveDaily(score,protein,carb){
-let data=JSON.parse(localStorage.getItem("daily_v6"))||[];
-data.push({date:new Date().toLocaleDateString(),score,protein,carb});
-if(data.length>7)data.shift();
-localStorage.setItem("daily_v6",JSON.stringify(data));
+  // Save by date (overwrite if same date)
+  const m=getDailyMap();
+  m[d]={date:d, score, protein, carb};
+  setDailyMap(m);
+  updateSummary();
 }
 
 function updateSummary(){
-let data=JSON.parse(localStorage.getItem("daily_v6"))||[];
-if(data.length==0){ summary.innerHTML="尚無資料"; return; }
-let avgScore=(data.reduce((a,b)=>a+b.score,0)/data.length).toFixed(0);
-let avgProtein=(data.reduce((a,b)=>a+b.protein,0)/data.length).toFixed(0);
-let avgCarb=(data.reduce((a,b)=>a+b.carb,0)/data.length).toFixed(0);
-summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g ｜ 平均碳水 ${avgCarb}g`;
+  const m=getDailyMap();
+  const keys=Object.keys(m).sort(); // ISO dates
+  const last7=keys.slice(-7).map(k=>m[k]);
+  if(last7.length===0){ summary.innerHTML="尚無資料"; return; }
+  const avgScore=(last7.reduce((a,b)=>a+b.score,0)/last7.length).toFixed(0);
+  const avgProtein=(last7.reduce((a,b)=>a+b.protein,0)/last7.length).toFixed(0);
+  const avgCarb=(last7.reduce((a,b)=>a+b.carb,0)/last7.length).toFixed(0);
+  summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g ｜ 平均碳水 ${avgCarb}g （${last7.length}天）`;
 }
 
 function saveWeekly(){
-let data=JSON.parse(localStorage.getItem("weekly_v6"))||[];
-data.push({date:new Date().toLocaleDateString(),weight:weight.value,bodyfat:bodyfat.value});
-localStorage.setItem("weekly_v6",JSON.stringify(data));
-weeklyInfo.innerText="已儲存本週紀錄 ✅";
+  let data=JSON.parse(localStorage.getItem("weekly_v7"))||[];
+  data.push({date:todayISO(),weight:weight.value,bodyfat:bodyfat.value});
+  localStorage.setItem("weekly_v7",JSON.stringify(data));
+  weeklyInfo.innerText="已儲存本週紀錄 ✅";
 }
 
+// init
+logDate.value=todayISO();
+loadGoalsIntoForm(getGoals());
 updateSummary();
 
-// Register SW for PWA
+// Register SW
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
