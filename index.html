@@ -1,250 +1,624 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>L LAB Tracker</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#16a34a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-<style>
-body{font-family:Arial;background:#f3f4f6;padding:14px}
-.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
-h1{font-size:20px;margin:0}
-h2{font-size:16px;margin-bottom:8px}
-h3{font-size:14px;margin:10px 0 0}
-input,select{width:100%;padding:10px;margin:6px 0;border-radius:10px;border:1px solid #d1d5db}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{background:#111827;color:#fff;padding:12px;border:none;border-radius:12px;width:100%;font-weight:bold}
-.btn2{background:#16a34a;color:#fff;padding:12px;border:none;border-radius:12px;width:100%;font-weight:bold}
-.toggle{cursor:pointer;font-weight:bold;margin-bottom:6px}
-.hidden{display:none}
-.good{color:#16a34a;font-weight:bold}
-.warn{color:#c58b00;font-weight:bold}
-.bad{color:#dc2626;font-weight:bold}
-.small{font-size:13px;color:#6b7280}
-hr{border:none;border-top:1px solid #eee;margin:12px 0}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>L LAB Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#111827;
+      --accent:#16a34a;
+      --shadow: 0 12px 28px rgba(17,24,39,.08);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    .topbar{
+      background: var(--accent);
+      padding: 14px 16px calc(12px + env(safe-area-inset-top));
+      position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 10px 20px rgba(0,0,0,.08);
+    }
+    .toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .title{color:#fff; font-weight:900; letter-spacing:.2px; font-size:18px}
+    .subtitle{color: rgba(255,255,255,.92); font-size:12px; margin-top:2px}
+    .wrap{max-width: 760px; margin: 14px auto 28px; padding: 0 14px;}
+    .card{
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 14px; margin: 14px 0; border: 1px solid rgba(229,231,235,.7);
+    }
+    details{border-radius: var(--radius);}
+    summary{
+      list-style:none; cursor:pointer; user-select:none;
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; font-size:18px;
+      padding: 6px 2px;
+    }
+    summary::-webkit-details-marker{display:none}
+    .chev{width:10px; height:10px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform: rotate(-45deg); transition: .2s;}
+    details[open] .chev{transform: rotate(45deg)}
+    .hint{color:var(--muted); font-size:12px; margin-top:6px}
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .grid3{display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px}
+    @media (max-width:520px){ .grid3{grid-template-columns:1fr 1fr} }
+    .field label{display:block; font-size:12px; color:var(--muted); margin: 8px 0 6px}
+    input, select{
+      width:100%; border:1px solid var(--line); background:#fff;
+      padding:12px 12px; border-radius:16px; font-size:15px; outline:none;
+    }
+    input:focus, select:focus{border-color: rgba(22,163,74,.7); box-shadow: 0 0 0 4px rgba(22,163,74,.10);}
+    .btn{
+      width:100%; border:none; border-radius: 18px; padding: 14px 14px;
+      background: var(--primary); color:#fff; font-weight:900; font-size:16px;
+      margin-top: 12px;
+    }
+    .btn.ghost{background:#eef2ff; color:#111827;}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 10px 12px; border-radius: 16px; border:1px solid var(--line);
+      background:#fff;
+    }
+    .chip input{width:18px; height:18px}
+    .kpi{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    .kpi .box{border:1px solid var(--line); border-radius:18px; padding:12px; background:#fff}
+    .kpi .num{font-size:20px; font-weight:950}
+    .kpi .lab{font-size:12px; color:var(--muted); margin-top:3px}
+    .hr{height:1px; background: var(--line); margin: 12px 0}
+    .toast{
+      position: fixed; left:50%; bottom: 18px; transform: translateX(-50%);
+      background: rgba(17,24,39,.92); color:#fff; padding: 10px 12px; border-radius: 14px;
+      font-size:13px; display:none; z-index: 999;
+    }
+    .small{font-size:12px; color: var(--muted)}
+    .danger{color:#b91c1c}
+    .ok{color:#16a34a}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;
+      font-size:12px;color:var(--muted)
+    }
+  </style>
 </head>
 <body>
-
-<div class="card">
-  <h1>L LAB Tracker</h1>
-  <div class="small">v8｜GitHub Pages 修正版｜日期｜可收合｜可安裝</div>
-</div>
-
-<div class="card">
-  <div class="toggle" onclick="toggle('daily')">▼ 每日紀錄</div>
-  <div id="daily">
-    日期
-    <input id="logDate" type="date">
-
-    <div class="row">
+  <div class="topbar">
+    <div class="toprow">
       <div>
-        班別
-        <select id="shift">
-          <option>早班</option>
-          <option>晚班</option>
-          <option>大夜</option>
-          <option>休假</option>
-        </select>
+        <div class="title">L LAB Tracker</div>
+        <div class="subtitle">v7.1｜穩定定版（保留 v7 風格 + 週目標）</div>
       </div>
-      <div>
-        運動種類
-        <select id="workout">
-          <option>重訓</option>
-          <option>Zone2</option>
-          <option>HYROX</option>
-          <option>休息</option>
-        </select>
-      </div>
+      <div class="pill" id="lastSavePill">尚未儲存</div>
     </div>
-
-    <label><input type="checkbox" id="recovery"> 今天是恢復日</label>
-
-    <div class="row">
-      <input id="water" placeholder="喝水 ml">
-      <input id="steps" placeholder="步數">
-    </div>
-
-    <hr>
-
-    <h3>餐1</h3>
-    <div class="row">
-      <input id="p1" placeholder="蛋白 g">
-      <input id="c1" placeholder="碳水 g">
-    </div>
-    <input id="k1" placeholder="熱量 kcal">
-
-    <h3>餐2</h3>
-    <div class="row">
-      <input id="p2" placeholder="蛋白 g">
-      <input id="c2" placeholder="碳水 g">
-    </div>
-    <input id="k2" placeholder="熱量 kcal">
-
-    <h3>餐3</h3>
-    <div class="row">
-      <input id="p3" placeholder="蛋白 g">
-      <input id="c3" placeholder="碳水 g">
-    </div>
-    <input id="k3" placeholder="熱量 kcal">
-
-    <button class="btn2" onclick="calculate()">計算並儲存</button>
-    <div id="result" style="margin-top:10px"></div>
   </div>
-</div>
 
-<div class="card">
-  <div class="toggle" onclick="toggle('settings')">▶ 目標設定（可調整）</div>
-  <div id="settings" class="hidden">
-    <div class="row">
-      <div>蛋白目標(g)<input id="goalProtein" value="105"></div>
-      <div>步數目標<input id="goalSteps" value="8000"></div>
-    </div>
-    喝水目標(ml)
-    <input id="goalWater" value="2500">
+  <div class="wrap">
 
-    <div class="row">
-      <div>重訓熱量<input id="kStrength" value="1700"></div>
-      <div>HYROX熱量<input id="kHyrox" value="1750"></div>
-    </div>
-    <div class="row">
-      <div>Zone2熱量<input id="kZone2" value="1500"></div>
-      <div>休息熱量<input id="kRest" value="1400"></div>
-    </div>
-    <div class="row">
-      <div>恢復日下限<input id="kRecMin" value="1700"></div>
-      <div>恢復日上限<input id="kRecMax" value="1800"></div>
+    <div class="card">
+      <details open>
+        <summary><span class="chev"></span> 目標設定</summary>
+        <div class="hint">都會存到手機本機（不會上傳）。</div>
+
+        <div class="grid2">
+          <div class="field">
+            <label>蛋白目標 (g)</label>
+            <input id="g_protein" type="number" inputmode="numeric" placeholder="例如 105" />
+          </div>
+          <div class="field">
+            <label>喝水目標 (ml)</label>
+            <input id="g_water" type="number" inputmode="numeric" placeholder="例如 2500" />
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="hint">碳水 / 熱量用三組：一般日 / 大夜日 / 恢復日。</div>
+
+        <div class="grid2">
+          <div class="field"><label>碳水（一般日）下限 (g)</label><input id="carb_n_min" type="number" inputmode="numeric" placeholder="例如 80"></div>
+          <div class="field"><label>碳水（一般日）上限 (g)</label><input id="carb_n_max" type="number" inputmode="numeric" placeholder="例如 120"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>碳水（大夜日）下限 (g)</label><input id="carb_night_min" type="number" inputmode="numeric" placeholder="例如 80"></div>
+          <div class="field"><label>碳水（大夜日）上限 (g)</label><input id="carb_night_max" type="number" inputmode="numeric" placeholder="例如 110"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label>熱量（一般日）下限 (kcal)</label><input id="kcal_n_min" type="number" inputmode="numeric" placeholder="例如 1400"></div>
+          <div class="field"><label>熱量（一般日）上限 (kcal)</label><input id="kcal_n_max" type="number" inputmode="numeric" placeholder="例如 1700"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>熱量（恢復日）下限 (kcal)</label><input id="kcal_r_min" type="number" inputmode="numeric" placeholder="例如 1600"></div>
+          <div class="field"><label>熱量（恢復日）上限 (kcal)</label><input id="kcal_r_max" type="number" inputmode="numeric" placeholder="例如 1750"></div>
+        </div>
+
+        <button class="btn" id="save_goals">儲存目標</button>
+        <div class="small" id="goal_saved_at"></div>
+      </details>
     </div>
 
-    <button class="btn" onclick="saveGoals()">儲存目標</button>
-    <div id="saved" class="small"></div>
+    <div class="card">
+      <details open>
+        <summary><span class="chev"></span> 每日紀錄</summary>
+        <div class="hint">日期可選擇補登；填完按「儲存今天」。</div>
+
+        <div class="grid2">
+          <div class="field"><label>日期</label><input id="d_date" type="date"></div>
+          <div class="field"><label>班別</label>
+            <select id="d_shift">
+              <option value="早班">早班</option>
+              <option value="晚班">晚班</option>
+              <option value="大夜">大夜</option>
+              <option value="休假">休假</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label>運動種類</label>
+            <select id="d_training">
+              <option value="休息">休息</option>
+              <option value="重訓">重訓</option>
+              <option value="Zone2">Zone2</option>
+              <option value="HYROX">HYROX</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="field"><label>睡眠 (小時)</label><input id="d_sleep" type="number" step="0.1" inputmode="decimal" placeholder="例如 6.5"></div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="chip">
+            <input id="d_recovery" type="checkbox">
+            <div>
+              <div style="font-weight:900">今天是恢復日</div>
+              <div class="small">（會套用「恢復日熱量範圍」）</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="field"><label>喝水 (ml)</label><input id="d_water" type="number" inputmode="numeric" placeholder="例如 1800"></div>
+          <div class="field"><label>步數</label><input id="d_steps" type="number" inputmode="numeric" placeholder="例如 8000"></div>
+        </div>
+
+        <div class="hr"></div>
+        <div style="font-weight:950; font-size:16px; margin-bottom:6px">三餐（可只填有吃的）</div>
+
+        <div class="grid2">
+          <div class="field"><label>餐1 蛋白 (g)</label><input id="m1_p" type="number" inputmode="numeric"></div>
+          <div class="field"><label>餐1 碳水 (g)</label><input id="m1_c" type="number" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>餐1 熱量 (kcal)</label><input id="m1_k" type="number" inputmode="numeric"></div>
+
+        <div class="grid2">
+          <div class="field"><label>餐2 蛋白 (g)</label><input id="m2_p" type="number" inputmode="numeric"></div>
+          <div class="field"><label>餐2 碳水 (g)</label><input id="m2_c" type="number" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>餐2 熱量 (kcal)</label><input id="m2_k" type="number" inputmode="numeric"></div>
+
+        <div class="grid2">
+          <div class="field"><label>餐3 蛋白 (g)</label><input id="m3_p" type="number" inputmode="numeric"></div>
+          <div class="field"><label>餐3 碳水 (g)</label><input id="m3_c" type="number" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>餐3 熱量 (kcal)</label><input id="m3_k" type="number" inputmode="numeric"></div>
+
+        <button class="btn ghost" id="calc_day">計算今日狀況</button>
+
+        <div class="kpi" style="margin-top:12px">
+          <div class="box"><div class="num" id="kpi_p">-</div><div class="lab">總蛋白 (g)</div></div>
+          <div class="box"><div class="num" id="kpi_c">-</div><div class="lab">總碳水 (g)</div></div>
+          <div class="box"><div class="num" id="kpi_k">-</div><div class="lab">總熱量 (kcal)</div></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <button class="btn" id="save_day">儲存今天（到本機）</button>
+        <div class="small" id="day_saved_at"></div>
+        <div class="small danger" id="day_hint"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <details open>
+        <summary><span class="chev"></span> 運動週目標（新增）</summary>
+        <div class="hint">統計方式：以「今天往前推 7 天」的每日紀錄，依運動種類自動計算次數。</div>
+
+        <div class="grid3">
+          <div class="field"><label>重訓 週目標（次）</label><input id="w_strength_goal" type="number" inputmode="numeric"></div>
+          <div class="field"><label>Zone2 週目標（次）</label><input id="w_zone2_goal" type="number" inputmode="numeric"></div>
+          <div class="field"><label>HYROX 週目標（次）</label><input id="w_hyrox_goal" type="number" inputmode="numeric"></div>
+        </div>
+        <button class="btn" id="save_week_goals">儲存週目標</button>
+        <div class="small" id="week_goal_saved_at"></div>
+
+        <div class="hr"></div>
+        <div class="kpi">
+          <div class="box">
+            <div class="num" id="wk_strength">-</div>
+            <div class="lab">近7天 重訓 次</div>
+            <div class="small" id="wk_strength_status"></div>
+          </div>
+          <div class="box">
+            <div class="num" id="wk_zone2">-</div>
+            <div class="lab">近7天 Zone2 次</div>
+            <div class="small" id="wk_zone2_status"></div>
+          </div>
+          <div class="box">
+            <div class="num" id="wk_hyrox">-</div>
+            <div class="lab">近7天 HYROX 次</div>
+            <div class="small" id="wk_hyrox_status"></div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <button class="btn ghost" id="refresh_week">重新整理近7天統計</button>
+      </details>
+    </div>
+
+    <div class="card">
+      <details>
+        <summary><span class="chev"></span> 體重 / 體脂（每週一次）</summary>
+        <div class="hint">建議一週填一次（例如每週一），用來看趨勢。</div>
+
+        <div class="grid2">
+          <div class="field"><label>量測日期</label><input id="bf_date" type="date"></div>
+          <div class="field"><label>體重 (kg)</label><input id="bf_weight" type="number" step="0.1" inputmode="decimal" placeholder="例如 60.0"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>體脂 (%)</label><input id="bf_fat" type="number" step="0.1" inputmode="decimal" placeholder="例如 34.0"></div>
+          <div class="field"><label>備註</label><input id="bf_note" type="text" placeholder="例如：早上空腹"></div>
+        </div>
+        <button class="btn" id="save_bf">儲存本週量測</button>
+        <div class="small" id="bf_saved_at"></div>
+      </details>
+    </div>
+
   </div>
-</div>
 
-<div class="card">
-  <div class="toggle" onclick="toggle('weekly')">▶ 每週體重體脂（每週一次）</div>
-  <div id="weekly" class="hidden">
-    <div class="row">
-      <input id="weight" placeholder="體重 kg">
-      <input id="bodyfat" placeholder="體脂 %">
-    </div>
-    <button class="btn" onclick="saveWeekly()">儲存本週</button>
-    <div id="weeklyInfo" class="small"></div>
-  </div>
-</div>
+  <div class="toast" id="toast"></div>
 
-<div class="card">
-  <h2>近7天概覽</h2>
-  <div id="summary" class="small">尚無資料</div>
-</div>
+  <script>
+    const LS = {
+      goals: "llab_goals_v7_1",
+      days: "llab_days_v7_1",
+      weekGoals: "llab_week_goals_v7_1",
+      body: "llab_body_v7_1"
+    };
 
-<script>
-function toggle(id){ document.getElementById(id).classList.toggle("hidden"); }
-function todayISO(){
-  const d=new Date(); const tzOff=d.getTimezoneOffset()*60000;
-  return new Date(d - tzOff).toISOString().slice(0,10);
-}
-function loadGoalsIntoForm(g){
-  goalProtein.value=g.protein; goalWater.value=g.water; goalSteps.value=g.steps;
-  kStrength.value=g.kStrength; kHyrox.value=g.kHyrox; kZone2.value=g.kZone2; kRest.value=g.kRest;
-  kRecMin.value=g.kRecMin; kRecMax.value=g.kRecMax;
-}
-function getGoals(){
-  return JSON.parse(localStorage.getItem("goals_v8")) || {
-    protein:105, water:2500, steps:8000,
-    kStrength:1700, kHyrox:1750, kZone2:1500, kRest:1400,
-    kRecMin:1700, kRecMax:1800
-  };
-}
-function saveGoals(){
-  const goals={
-    protein:Number(goalProtein.value||105),
-    water:Number(goalWater.value||2500),
-    steps:Number(goalSteps.value||8000),
-    kStrength:Number(kStrength.value||1700),
-    kHyrox:Number(kHyrox.value||1750),
-    kZone2:Number(kZone2.value||1500),
-    kRest:Number(kRest.value||1400),
-    kRecMin:Number(kRecMin.value||1700),
-    kRecMax:Number(kRecMax.value||1800)
-  };
-  localStorage.setItem("goals_v8",JSON.stringify(goals));
-  saved.innerText="已儲存 ✅";
-}
-function calorieTarget(workout,recovery,g){
-  if(recovery) return [g.kRecMin,g.kRecMax];
-  if(workout==="重訓") return [g.kStrength,g.kStrength];
-  if(workout==="HYROX") return [g.kHyrox,g.kHyrox];
-  if(workout==="Zone2") return [g.kZone2,g.kZone2];
-  return [g.kRest,g.kRest];
-}
-function getDailyMap(){ return JSON.parse(localStorage.getItem("daily_v8")) || {}; }
-function setDailyMap(m){ localStorage.setItem("daily_v8", JSON.stringify(m)); }
-function calculate(){
-  const g=getGoals(); const d=logDate.value || todayISO();
-  const protein=Number(p1.value||0)+Number(p2.value||0)+Number(p3.value||0);
-  const carb=Number(c1.value||0)+Number(c2.value||0)+Number(c3.value||0);
-  const kcal=Number(k1.value||0)+Number(k2.value||0)+Number(k3.value||0);
-  const waterVal=Number(water.value||0);
-  const stepsVal=Number(steps.value||0);
-  const [minK,maxK]=calorieTarget(workout.value, recovery.checked, g);
+    function toast(msg){
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(window.__t);
+      window.__t = setTimeout(()=> el.style.display="none", 1600);
+    }
 
-  let score=0;
-  if(protein>=g.protein) score+=25;
-  if(waterVal>=g.water) score+=15;
-  if(kcal>=minK && kcal<=maxK) score+=30;
-  if(stepsVal>=g.steps) score+=15;
-  if(shift.value==="大夜"){ if(carb<=110) score+=15; } else score+=15;
+    function todayISO(){
+      const d = new Date();
+      const off = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - off*60000);
+      return local.toISOString().slice(0,10);
+    }
+    function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
 
-  let label="需調整",cls="bad";
-  if(score>=85){label="🔥 非常理想";cls="good";}
-  else if(score>=70){label="👍 合格";cls="warn";}
+    function loadJSON(key, fallback){
+      try{ return JSON.parse(localStorage.getItem(key) || "") ?? fallback; }
+      catch{ return fallback; }
+    }
+    function saveJSON(key, obj){
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
 
-  result.innerHTML=`
-    <div>日期：${d}</div>
-    <div>總蛋白：${protein} g</div>
-    <div>總碳水：${carb} g</div>
-    <div>總熱量：${kcal} kcal（目標 ${minK}${minK===maxK?"":"–"+maxK}）</div>
-    <div class="${cls}">今日分數：${score}/100 - ${label}</div>
-  `;
-  const m=getDailyMap(); m[d]={date:d, score, protein, carb}; setDailyMap(m);
-  updateSummary();
-}
-function updateSummary(){
-  const m=getDailyMap(); const keys=Object.keys(m).sort();
-  const last7=keys.slice(-7).map(k=>m[k]);
-  if(last7.length===0){ summary.innerHTML="尚無資料"; return; }
-  const avgScore=(last7.reduce((a,b)=>a+b.score,0)/last7.length).toFixed(0);
-  const avgProtein=(last7.reduce((a,b)=>a+b.protein,0)/last7.length).toFixed(0);
-  const avgCarb=(last7.reduce((a,b)=>a+b.carb,0)/last7.length).toFixed(0);
-  summary.innerHTML=`平均分數 ${avgScore} ｜ 平均蛋白 ${avgProtein}g ｜ 平均碳水 ${avgCarb}g （${last7.length}天）`;
-}
-function saveWeekly(){
-  let data=JSON.parse(localStorage.getItem("weekly_v8"))||[];
-  data.push({date:todayISO(),weight:weight.value,bodyfat:bodyfat.value});
-  localStorage.setItem("weekly_v8",JSON.stringify(data));
-  weeklyInfo.innerText="已儲存本週紀錄 ✅";
-}
+    function setLastSave(text){
+      document.getElementById("lastSavePill").textContent = text;
+    }
 
-logDate.value=todayISO();
-loadGoalsIntoForm(getGoals());
-updateSummary();
+    function calcTotals(){
+      const p = num(m1_p.value)+num(m2_p.value)+num(m3_p.value);
+      const c = num(m1_c.value)+num(m2_c.value)+num(m3_c.value);
+      const k = num(m1_k.value)+num(m2_k.value)+num(m3_k.value);
+      return {p,c,k};
+    }
 
-// GitHub Pages-safe SW register for /llab_tracker/
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try{
-      const basePath = window.location.pathname.endsWith('/') ? window.location.pathname : (window.location.pathname + '/');
-      const swUrl = new URL('sw.js', window.location.origin + basePath).toString();
-      await navigator.serviceWorker.register(swUrl, { scope: basePath });
-    }catch(e){}
-  });
-}
-</script>
+    function getGoals(){
+      return loadJSON(LS.goals, {
+        protein:105, water:2500,
+        carb_n_min:80, carb_n_max:120,
+        carb_night_min:80, carb_night_max:110,
+        kcal_n_min:1400, kcal_n_max:1700,
+        kcal_r_min:1600, kcal_r_max:1750,
+        savedAt:""
+      });
+    }
+
+    function setGoalsUI(g){
+      g_protein.value = g.protein ?? "";
+      g_water.value = g.water ?? "";
+      carb_n_min.value = g.carb_n_min ?? "";
+      carb_n_max.value = g.carb_n_max ?? "";
+      carb_night_min.value = g.carb_night_min ?? "";
+      carb_night_max.value = g.carb_night_max ?? "";
+      kcal_n_min.value = g.kcal_n_min ?? "";
+      kcal_n_max.value = g.kcal_n_max ?? "";
+      kcal_r_min.value = g.kcal_r_min ?? "";
+      kcal_r_max.value = g.kcal_r_max ?? "";
+      goal_saved_at.textContent = g.savedAt ? ("上次儲存：" + g.savedAt) : "";
+    }
+
+    function getDays(){
+      return loadJSON(LS.days, {}); // {"YYYY-MM-DD": {...}}
+    }
+
+    function setDayUI(d){
+      const date = d?.date || d_date.value || todayISO();
+      d_date.value = date;
+
+      d_shift.value = d?.shift || "早班";
+      d_training.value = d?.training || "休息";
+      d_sleep.value = d?.sleep ?? "";
+      d_recovery.checked = !!d?.recovery;
+
+      d_water.value = d?.water ?? "";
+      d_steps.value = d?.steps ?? "";
+
+      m1_p.value = d?.m1?.p ?? "";
+      m1_c.value = d?.m1?.c ?? "";
+      m1_k.value = d?.m1?.k ?? "";
+
+      m2_p.value = d?.m2?.p ?? "";
+      m2_c.value = d?.m2?.c ?? "";
+      m2_k.value = d?.m2?.k ?? "";
+
+      m3_p.value = d?.m3?.p ?? "";
+      m3_c.value = d?.m3?.c ?? "";
+      m3_k.value = d?.m3?.k ?? "";
+
+      day_saved_at.textContent = d?.savedAt ? ("已儲存：" + d.savedAt) : "";
+      day_hint.textContent = "";
+      renderKPIs();
+    }
+
+    function renderKPIs(){
+      const t = calcTotals();
+      kpi_p.textContent = t.p ? String(t.p) : "-";
+      kpi_c.textContent = t.c ? String(t.c) : "-";
+      kpi_k.textContent = t.k ? String(t.k) : "-";
+    }
+
+    function pickCarbRange(g, shift){
+      if (shift === "大夜") return [num(g.carb_night_min), num(g.carb_night_max)];
+      return [num(g.carb_n_min), num(g.carb_n_max)];
+    }
+    function pickKcalRange(g, recovery){
+      if (recovery) return [num(g.kcal_r_min), num(g.kcal_r_max)];
+      return [num(g.kcal_n_min), num(g.kcal_n_max)];
+    }
+
+    function buildDayObject(date){
+      const totals = calcTotals();
+      return {
+        date,
+        shift: d_shift.value,
+        training: d_training.value,
+        sleep: d_sleep.value,
+        recovery: d_recovery.checked,
+        water: d_water.value,
+        steps: d_steps.value,
+        m1:{p:m1_p.value,c:m1_c.value,k:m1_k.value},
+        m2:{p:m2_p.value,c:m2_c.value,k:m2_k.value},
+        m3:{p:m3_p.value,c:m3_c.value,k:m3_k.value},
+        totals,
+        savedAt:""
+      };
+    }
+
+    function validateDayAgainstGoals(g, day){
+      const t = day.totals;
+      const issues = [];
+      if (t.p < num(g.protein)) issues.push(`蛋白未達標（${t.p}/${g.protein}g）`);
+      if (num(day.water) < num(g.water)) issues.push(`喝水未達標（${day.water||0}/${g.water}ml）`);
+
+      const [cmin,cmax] = pickCarbRange(g, day.shift);
+      if (t.c < cmin || t.c > cmax) issues.push(`碳水不在範圍（${t.c}g，目標 ${cmin}-${cmax}g）`);
+
+      const [kmin,kmax] = pickKcalRange(g, day.recovery);
+      if (t.k < kmin || t.k > kmax) issues.push(`熱量不在範圍（${t.k}kcal，目標 ${kmin}-${kmax}kcal）`);
+
+      return issues;
+    }
+
+    // --- Weekly goals ---
+    function getWeekGoals(){
+      return loadJSON(LS.weekGoals, { strength:2, zone2:2, hyrox:1, savedAt:"" });
+    }
+    function setWeekGoalsUI(w){
+      w_strength_goal.value = w.strength ?? 2;
+      w_zone2_goal.value = w.zone2 ?? 2;
+      w_hyrox_goal.value = w.hyrox ?? 1;
+      week_goal_saved_at.textContent = w.savedAt ? ("上次儲存：" + w.savedAt) : "";
+    }
+
+    function last7Dates(){
+      const arr = [];
+      const now = new Date();
+      for (let i=0;i<7;i++){
+        const d = new Date(now);
+        d.setDate(now.getDate()-i);
+        const off = d.getTimezoneOffset();
+        const local = new Date(d.getTime() - off*60000);
+        arr.push(local.toISOString().slice(0,10));
+      }
+      return arr;
+    }
+
+    function computeLast7Counts(){
+      const days = getDays();
+      const keys = last7Dates();
+      let s=0,z=0,h=0;
+      keys.forEach(k=>{
+        const d = days[k];
+        if (!d) return;
+        if (d.training === "重訓") s++;
+        if (d.training === "Zone2") z++;
+        if (d.training === "HYROX") h++;
+      });
+      return {s,z,h};
+    }
+
+    function statusText(done, goal){
+      goal = num(goal);
+      if (!goal) return "";
+      const ok = done >= goal;
+      const remain = Math.max(0, goal - done);
+      if (ok) return `✅ 達標（${done}/${goal}）`;
+      return `⏳ 還差 ${remain} 次（${done}/${goal}）`;
+    }
+
+    function renderWeekStats(){
+      const w = getWeekGoals();
+      const c = computeLast7Counts();
+
+      wk_strength.textContent = String(c.s);
+      wk_zone2.textContent = String(c.z);
+      wk_hyrox.textContent = String(c.h);
+
+      wk_strength_status.textContent = statusText(c.s, w.strength);
+      wk_zone2_status.textContent = statusText(c.z, w.zone2);
+      wk_hyrox_status.textContent = statusText(c.h, w.hyrox);
+
+      wk_strength_status.className = "small " + ((num(w.strength) && c.s >= num(w.strength)) ? "ok" : "");
+      wk_zone2_status.className = "small " + ((num(w.zone2) && c.z >= num(w.zone2)) ? "ok" : "");
+      wk_hyrox_status.className = "small " + ((num(w.hyrox) && c.h >= num(w.hyrox)) ? "ok" : "");
+    }
+
+    // --- Body ---
+    function getBody(){
+      return loadJSON(LS.body, { date:"", weight:"", fat:"", note:"", savedAt:"" });
+    }
+    function setBodyUI(b){
+      bf_date.value = b.date || "";
+      bf_weight.value = b.weight ?? "";
+      bf_fat.value = b.fat ?? "";
+      bf_note.value = b.note ?? "";
+      bf_saved_at.textContent = b.savedAt ? ("已儲存：" + b.savedAt) : "";
+    }
+
+    // --- Init ---
+    (function init(){
+      d_date.value = todayISO();
+
+      const g = getGoals(); setGoalsUI(g);
+      const w = getWeekGoals(); setWeekGoalsUI(w);
+      const b = getBody(); setBodyUI(b);
+
+      const days = getDays();
+      const td = todayISO();
+      setDayUI(days[td] || {date: td});
+
+      renderWeekStats();
+      setLastSave("已載入");
+    })();
+
+    // --- Events ---
+    save_goals.addEventListener("click", ()=>{
+      const g = {
+        protein: num(g_protein.value),
+        water: num(g_water.value),
+        carb_n_min: num(carb_n_min.value),
+        carb_n_max: num(carb_n_max.value),
+        carb_night_min: num(carb_night_min.value),
+        carb_night_max: num(carb_night_max.value),
+        kcal_n_min: num(kcal_n_min.value),
+        kcal_n_max: num(kcal_n_max.value),
+        kcal_r_min: num(kcal_r_min.value),
+        kcal_r_max: num(kcal_r_max.value),
+        savedAt: new Date().toLocaleString()
+      };
+      saveJSON(LS.goals, g);
+      setGoalsUI(g);
+      toast("目標已儲存");
+      setLastSave("目標已儲存");
+    });
+
+    d_date.addEventListener("change", ()=>{
+      const date = d_date.value || todayISO();
+      const days = getDays();
+      setDayUI(days[date] || {date});
+    });
+
+    ["m1_p","m1_c","m1_k","m2_p","m2_c","m2_k","m3_p","m3_c","m3_k"].forEach(id=>{
+      document.getElementById(id).addEventListener("input", renderKPIs);
+    });
+
+    calc_day.addEventListener("click", ()=>{
+      renderKPIs();
+      const g = getGoals();
+      const date = d_date.value || todayISO();
+      const day = buildDayObject(date);
+      const issues = validateDayAgainstGoals(g, day);
+      day_hint.textContent = issues.length ? ("提醒： " + issues.join("；")) : "✅ 今日都在目標內（或接近）";
+      toast("已計算");
+    });
+
+    save_day.addEventListener("click", ()=>{
+      const date = d_date.value || todayISO();
+      const day = buildDayObject(date);
+      day.savedAt = new Date().toLocaleString();
+
+      const days = getDays();
+      days[date] = day;
+      saveJSON(LS.days, days);
+
+      day_saved_at.textContent = "已儲存：" + day.savedAt;
+      setLastSave("今日已儲存");
+      toast("今日已儲存");
+
+      // Update week stats
+      renderWeekStats();
+    });
+
+    save_week_goals.addEventListener("click", ()=>{
+      const w = {
+        strength: num(w_strength_goal.value),
+        zone2: num(w_zone2_goal.value),
+        hyrox: num(w_hyrox_goal.value),
+        savedAt: new Date().toLocaleString()
+      };
+      saveJSON(LS.weekGoals, w);
+      setWeekGoalsUI(w);
+      renderWeekStats();
+      toast("週目標已儲存");
+      setLastSave("週目標已儲存");
+    });
+
+    refresh_week.addEventListener("click", ()=>{
+      renderWeekStats();
+      toast("已更新近7天統計");
+    });
+
+    save_bf.addEventListener("click", ()=>{
+      const b = {
+        date: bf_date.value || todayISO(),
+        weight: bf_weight.value,
+        fat: bf_fat.value,
+        note: bf_note.value,
+        savedAt: new Date().toLocaleString()
+      };
+      saveJSON(LS.body, b);
+      setBodyUI(b);
+      toast("本週量測已儲存");
+      setLastSave("體重體脂已儲存");
+    });
+  </script>
 </body>
 </html>
