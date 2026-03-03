@@ -1,7 +1,9 @@
 {
   "name": "L LAB Tracker",
   "short_name": "L LAB",
+  "description": "L LAB Tracker - Ultimate Stable (no SW cache)",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f6f7fb",
   "theme_color": "#16a34a",
